@@ -2,23 +2,23 @@
 // Update these values with your Firebase project credentials
 
 export const firebaseConfig = {
-       apiKey: "AIzaSyDGmYJox_XioVPTESlb5li6-FaBcoR0EoY",
-    authDomain: "task5-a0bd1.firebaseapp.com",
-    projectId: "task5-a0bd1",
-    storageBucket: "task5-a0bd1.firebasestorage.app",
-    messagingSenderId: "849146777958",
-    appId: "1:849146777958:web:4a99718e4c0391bca138a7",
-    measurementId: "G-MHD3WM8XR4"
+  apiKey: "AIzaSyA0YadpYirpShp0ebXeZsgcEkIUtHbYAa0",
+  authDomain: "school-test-results.firebaseapp.com",
+  projectId: "school-test-results",
+  storageBucket: "school-test-results.firebasestorage.app",
+  messagingSenderId: "103469425964",
+  appId: "1:103469425964:web:831f0c8eba670b97acf889",
+  measurementId: "G-G4LR2CF4R4"
 };
 
 // Google Analytics Measurement ID
-export const GA_MEASUREMENT_ID = "G-MHD3WM8XR4";
+export const GA_MEASUREMENT_ID = "G-G4LR2CF4R4";
 
 // School Contact Information (displayed in parent portal)
 export const SCHOOL_CONTACT = {
-    phone: "+91-XXXXXXXXXX",
-    email: "admissions@yourschool.com",
-    name: "Your School Name"
+    phone: "+91-9347374670",
+    email: "dsssangareddy23@gmail.com",
+    name: "Delhi Secondary School"
 };
 
 // Translations
