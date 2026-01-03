@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talent Test Report - Parent Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MHD3WM8XR4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MHD3WM8XR4');
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Talent Test Report</h1>
+            <p class="subtitle">View your child's performance and admission eligibility</p>
+        </header>
+
+        <div id="loader">
+            Loading your report...
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display:none;"></div>
+
+        <div id="selectorCard" class="selector-card" style="display:none;">
+            <label>Select Student / Class:</label>
+            <select id="studentSelector"></select>
+        </div>
+
+        <div id="reportCard" class="report-card" style="display:none;">
+            <!-- Report content will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
