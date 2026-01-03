@@ -16,11 +16,45 @@
     </script>
 </head>
 <body>
+    <!-- Language Selection Modal -->
+    <div id="languageModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Choose Language / భాష ఎంచుకోండి</h2>
+            <div class="language-buttons">
+                <button class="lang-btn" onclick="selectLanguage('en')">
+                    English
+                </button>
+                <button class="lang-btn" onclick="selectLanguage('te')">
+                    తెలుగు (Telugu)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
-            <h1>🎓 Talent Test Report</h1>
-            <p class="subtitle">View your child's performance and admission eligibility</p>
+            <h1 id="pageTitle">🎓 Talent Test Report</h1>
+            <p class="subtitle" id="pageSubtitle">View your child's performance and admission eligibility</p>
         </header>
+
+        <!-- Phone Number Input Section -->
+        <div id="phoneInputSection" class="phone-input-card" style="display:none;">
+            <h2 id="enterPhoneLabel">Enter Phone Number</h2>
+            <form id="phoneForm">
+                <div class="form-group">
+                    <input 
+                        type="tel" 
+                        id="phoneInput" 
+                        placeholder="Enter 10-digit phone number"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        required
+                    >
+                    <div id="phoneError" class="error-text" style="display:none;"></div>
+                </div>
+                <button type="submit" class="submit-btn" id="viewReportBtn">View Report</button>
+            </form>
+        </div>
 
         <div id="loader">
             Loading your report...
@@ -29,7 +63,7 @@
         <div id="errorMessage" class="error-message" style="display:none;"></div>
 
         <div id="selectorCard" class="selector-card" style="display:none;">
-            <label>Select Student / Class:</label>
+            <label id="selectorLabel">Select Student / Class:</label>
             <select id="studentSelector"></select>
         </div>
 

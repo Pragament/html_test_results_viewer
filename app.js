@@ -1,23 +1,28 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { firebaseConfig, SCHOOL_CONTACT } from './firebase-config.js';
+import { firebaseConfig, SCHOOL_CONTACT, translations } from './firebase-config.js';
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Get phone number from URL
-const urlParams = new URLSearchParams(window.location.search);
-const phoneNumber = urlParams.get('phone');
+// Language and phone number management
+let currentLanguage = null; // Don't use localStorage - ask every time
+let phoneNumber = null;
 
 let allReports = [];
 let studentReports = [];
 
 // DOM Elements
+const languageModal = document.getElementById('languageModal');
+const phoneInputSection = document.getElementById('phoneInputSection');
 const loader = document.getElementById('loader');
 const errorMessage = document.getElementById('errorMessage');
 const selectorCard = document.getElementById('selectorCard');
 const studentSelector = document.getElementById('studentSelector');
 const reportCard = document.getElementById('reportCard');
+const phoneForm = document.getElementById('phoneForm');
+const phoneInput = document.getElementById('phoneInput');
+const phoneError = document.getElementById('phoneError');
 
 // Google Analytics Event Tracking
 function trackEvent(eventName, params = {}) {
@@ -26,26 +31,109 @@ function trackEvent(eventName, params = {}) {
     }
 }
 
+// Get translation
+function t(key) {
+    return translations[currentLanguage]?.[key] || translations.en[key] || key;
+}
+
+// Update UI text based on language
+function updateLanguage() {
+    document.getElementById('pageTitle').textContent = t('title');
+    document.getElementById('pageSubtitle').textContent = t('subtitle');
+    document.getElementById('enterPhoneLabel').textContent = t('enterPhone');
+    phoneInput.placeholder = t('phonePlaceholder');
+    document.getElementById('viewReportBtn').textContent = t('viewReport');
+    document.getElementById('selectorLabel').textContent = t('selectStudent');
+}
+
+// Language selection
+function selectLanguage(lang) {
+    currentLanguage = lang;
+    // Don't save to localStorage - ask every time
+    languageModal.style.display = 'none';
+    updateLanguage();
+    checkPhoneNumber();
+}
+
+// Make selectLanguage global
+window.selectLanguage = selectLanguage;
+
+// Check for phone number
+function checkPhoneNumber() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPhone = urlParams.get('phone');
+    
+    if (urlPhone && /^\d{10}$/.test(urlPhone)) {
+        phoneNumber = urlPhone;
+        phoneInputSection.style.display = 'none';
+        init();
+    } else {
+        phoneInputSection.style.display = 'block';
+        loader.style.display = 'none';
+    }
+}
+
+// Phone form submission
+phoneForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const phone = phoneInput.value.trim();
+    
+    // Validate 10 digits only
+    if (!/^\d{10}$/.test(phone)) {
+        phoneError.textContent = t('invalidPhone');
+        phoneError.style.display = 'block';
+        return;
+    }
+    
+    phoneError.style.display = 'none';
+    phoneNumber = phone;
+    phoneInputSection.style.display = 'none';
+    
+    // Update URL without reload
+    const newUrl = `${window.location.pathname}?phone=${phone}`;
+    window.history.pushState({}, '', newUrl);
+    
+    init();
+});
+
 // Initialize
 async function init() {
+    // Show language modal if not selected
+    if (!currentLanguage) {
+        languageModal.style.display = 'flex';
+        return;
+    }
+    
+    updateLanguage();
+    
     if (!phoneNumber) {
-        showError('No phone number provided. Please use the link sent by the school.');
+        checkPhoneNumber();
         return;
     }
 
     loader.style.display = 'block';
+    loader.textContent = t('loading');
     
     try {
         await loadReports();
         
         if (studentReports.length === 0) {
-            showError('No reports found for this phone number.');
+            showError(t('noReports'));
             return;
         }
 
         populateSelector();
         loader.style.display = 'none';
         selectorCard.style.display = 'block';
+        
+        // Auto-select if only one student, otherwise select first
+        if (studentReports.length === 1) {
+            studentSelector.value = '0';
+            displayReport(studentReports[0]);
+        } else if (studentReports.length > 1) {
+            studentSelector.value = '0';
+            displayReport(studentReports[0]);
+        }
         
         trackEvent('page_view', { phone: phoneNumber });
     } catch (error) {
@@ -73,7 +161,7 @@ async function loadReports() {
 }
 
 function populateSelector() {
-    studentSelector.innerHTML = '<option value="">-- Select Student --</option>';
+    studentSelector.innerHTML = `<option value="">${t('selectOption')}</option>`;
     
     studentReports.forEach((report, index) => {
         const option = document.createElement('option');
@@ -108,11 +196,17 @@ function displayReport(report) {
     // Eligibility Message
     let eligibilityMessage = '';
     if (student.percentile >= 90) {
-        eligibilityMessage = '🎉 Congratulations! Your child is eligible for <strong>Merit Scholarship</strong> and priority admission.';
+        eligibilityMessage = currentLanguage === 'te' 
+            ? '🎉 అభినందనలు! మీ పిల్లవాడు <strong>మెరిట్ స్కాలర్‌షిప్</strong> మరియు ప్రాధాన్యత ప్రవేశానికి అర్హులు.'
+            : '🎉 Congratulations! Your child is eligible for <strong>Merit Scholarship</strong> and priority admission.';
     } else if (student.percentile >= 65) {
-        eligibilityMessage = '✅ Your child is eligible for admission with <strong>scholarship consideration</strong>.';
+        eligibilityMessage = currentLanguage === 'te'
+            ? '✅ మీ పిల్లవాడు <strong>స్కాలర్‌షిప్ పరిశీలన</strong>తో ప్రవేశానికి అర్హులు.'
+            : '✅ Your child is eligible for admission with <strong>scholarship consideration</strong>.';
     } else {
-        eligibilityMessage = '✅ Your child is eligible for admission. We offer personalized support programs.';
+        eligibilityMessage = currentLanguage === 'te'
+            ? '✅ మీ పిల్లవాడు ప్రవేశానికి అర్హులు. మేము వ్యక్తిగత మద్దతు కార్యక్రమాలను అందిస్తాము.'
+            : '✅ Your child is eligible for admission. We offer personalized support programs.';
     }
 
     // Scholarship Info
@@ -120,23 +214,23 @@ function displayReport(report) {
     if (student.percentile >= 90) {
         scholarshipInfo = `
             <div class="scholarship-box">
-                <h3>🏆 Scholarship Benefits</h3>
+                <h3>🏆 ${currentLanguage === 'te' ? 'స్కాలర్‌షిప్ ప్రయోజనాలు' : 'Scholarship Benefits'}</h3>
                 <ul>
-                    <li>Up to 50% tuition fee waiver</li>
-                    <li>Registration fee waived</li>
-                    <li>Priority seat allotment</li>
-                    <li>Free study materials for first term</li>
+                    <li>${currentLanguage === 'te' ? '50% వరకు ట్యూషన్ ఫీజు మినహాయింపు' : 'Up to 50% tuition fee waiver'}</li>
+                    <li>${currentLanguage === 'te' ? 'రిజిస్ట్రేషన్ ఫీజు మినహాయింపు' : 'Registration fee waived'}</li>
+                    <li>${currentLanguage === 'te' ? 'ప్రాధాన్యత సీటు కేటాయింపు' : 'Priority seat allotment'}</li>
+                    <li>${currentLanguage === 'te' ? 'మొదటి టర్మ్ కోసం ఉచిత అధ్యయన సామగ్రి' : 'Free study materials for first term'}</li>
                 </ul>
             </div>
         `;
     } else if (student.percentile >= 65) {
         scholarshipInfo = `
             <div class="scholarship-box">
-                <h3>💰 Fee Benefits</h3>
+                <h3>💰 ${currentLanguage === 'te' ? 'ఫీజు ప్రయోజనాలు' : 'Fee Benefits'}</h3>
                 <ul>
-                    <li>Registration fee waived</li>
-                    <li>Priority seat allotment</li>
-                    <li>10% discount on first term fees</li>
+                    <li>${currentLanguage === 'te' ? 'రిజిస్ట్రేషన్ ఫీజు మినహాయింపు' : 'Registration fee waived'}</li>
+                    <li>${currentLanguage === 'te' ? 'ప్రాధాన్యత సీటు కేటాయింపు' : 'Priority seat allotment'}</li>
+                    <li>${currentLanguage === 'te' ? 'మొదటి టర్మ్ ఫీజుపై 10% తగ్గింపు' : '10% discount on first term fees'}</li>
                 </ul>
             </div>
         `;
@@ -144,52 +238,52 @@ function displayReport(report) {
 
     reportCard.innerHTML = `
         <h2>${student.name}</h2>
-        <p style="color: #7f8c8d; margin-bottom: 25px;"><strong>Class:</strong> ${report.className} | <strong>Test Date:</strong> ${report.testDate.toLocaleDateString()}</p>
+        <p style="color: #7f8c8d; margin-bottom: 25px;"><strong>${t('class')}:</strong> ${report.className} | <strong>${t('testDate')}:</strong> ${report.testDate.toLocaleDateString()}</p>
         
         <div style="margin: 25px 0;">
-            <h3>Performance Summary</h3>
+            <h3>${t('performanceSummary')}</h3>
             <div class="performance-badge ${badgeClass}">
                 ${student.performanceBand}
             </div>
-            <p style="margin-top: 15px; font-size: 16px;"><strong>Percentile:</strong> ${student.percentile}th | <strong>Score:</strong> ${student.grandTotal}/${student.maxTotal || 100} | <strong>Percentage:</strong> ${student.percentage}${student.percentage && !student.percentage.toString().includes('%') ? '%' : ''}</p>
+            <p style="margin-top: 15px; font-size: 16px;"><strong>${t('percentile')}:</strong> ${student.percentile}th | <strong>${t('score')}:</strong> ${student.grandTotal}/${student.maxTotal || 100} | <strong>${t('percentage')}:</strong> ${student.percentage}${student.percentage && !student.percentage.toString().includes('%') ? '%' : ''}</p>
         </div>
 
         <div class="diagnostic-box">
-            <h3>📊 Diagnostic Insight</h3>
+            <h3>📊 ${t('diagnosticInsight')}</h3>
             <p>${student.diagnostic.message}</p>
         </div>
 
         <div class="score-section">
-            <h3>Subject-wise Performance: Round 1 (Open Book) vs Round 2 (Closed Book)</h3>
+            <h3>${t('subjectPerformance')}</h3>
             <div class="score-grid">
-                ${generateSubjectComparison('English', student.round1.english, student.round2.english)}
-                ${generateSubjectComparison('Math', student.round1.math, student.round2.math)}
-                ${generateSubjectComparison('Science', student.round1.science, student.round2.science)}
-                ${generateSubjectComparison('General Knowledge', student.round1.general, student.round2.general)}
+                ${generateSubjectComparison(currentLanguage === 'te' ? 'ఇంగ్లీష్' : 'English', student.round1.english, student.round2.english)}
+                ${generateSubjectComparison(currentLanguage === 'te' ? 'గణితం' : 'Math', student.round1.math, student.round2.math)}
+                ${generateSubjectComparison(currentLanguage === 'te' ? 'సైన్స్' : 'Science', student.round1.science, student.round2.science)}
+                ${generateSubjectComparison(currentLanguage === 'te' ? 'సాధారణ జ్ఞానం' : 'General Knowledge', student.round1.general, student.round2.general)}
             </div>
         </div>
 
         <div class="eligibility-box">
-            <h3>🎓 Admission Eligibility</h3>
+            <h3>🎓 ${t('admissionEligibility')}</h3>
             <p>${eligibilityMessage}</p>
         </div>
 
         ${scholarshipInfo}
 
         <div class="cta-box">
-            <h3>📞 Next Steps - Secure Your Child's Admission</h3>
+            <h3>📞 ${t('nextSteps')}</h3>
             <ul>
-                <li><strong>Counselling Date:</strong> Within 7 days of this report</li>
-                <li><strong>Admission Window:</strong> Limited seats available</li>
-                <li><strong>Required Documents:</strong> Birth certificate, previous report cards, 2 photos</li>
-                <li><strong>Contact:</strong> ${SCHOOL_CONTACT.phone} (Admissions Office)</li>
+                <li><strong>${currentLanguage === 'te' ? 'కౌన్సెలింగ్ తేదీ' : 'Counselling Date'}:</strong> ${currentLanguage === 'te' ? 'ఈ రిపోర్ట్ తర్వాత 7 రోజుల్లో' : 'Within 7 days of this report'}</li>
+                <li><strong>${currentLanguage === 'te' ? 'ప్రవేశ విండో' : 'Admission Window'}:</strong> ${currentLanguage === 'te' ? 'పరిమిత సీట్లు అందుబాటులో ఉన్నాయి' : 'Limited seats available'}</li>
+                <li><strong>${currentLanguage === 'te' ? 'అవసరమైన పత్రాలు' : 'Required Documents'}:</strong> ${currentLanguage === 'te' ? 'జనన ధృవీకరణ పత్రం, మునుపటి రిపోర్ట్ కార్డులు, 2 ఫోటోలు' : 'Birth certificate, previous report cards, 2 photos'}</li>
+                <li><strong>${currentLanguage === 'te' ? 'సంప్రదించండి' : 'Contact'}:</strong> ${SCHOOL_CONTACT.phone} (${currentLanguage === 'te' ? 'ప్రవేశాల కార్యాలయం' : 'Admissions Office'})</li>
             </ul>
-            <button class="btn" onclick="window.trackAndCall()">📞 Schedule Counselling Call</button>
+            <button class="btn" onclick="window.trackAndCall()">${t('scheduleCounselling')}</button>
             <button class="btn btn-download" onclick="window.downloadCertificate('${student.name}', '${student.performanceBand}', ${student.percentile})">
-                📄 Download Certificate
+                ${t('downloadCertificate')}
             </button>
             <a href="${report.answerKeyUrl}" target="_blank" class="btn" onclick="window.trackAnswerKey()">
-                📋 View Answer Key
+                ${t('viewAnswerKey')}
             </a>
         </div>
     `;
@@ -219,13 +313,13 @@ function generateSubjectComparison(subject, r1Score, r2Score) {
                     <div class="bar" style="height: ${r1Height}px;">
                         R1: ${r1Score}
                     </div>
-                    <small>Open Book</small>
+                    <small>${t('openBook')}</small>
                 </div>
                 <div class="round-bar">
                     <div class="bar" style="height: ${r2Height}px;">
                         R2: ${r2Score}
                     </div>
-                    <small>Closed Book</small>
+                    <small>${t('closedBook')}</small>
                 </div>
             </div>
         </div>
@@ -241,7 +335,10 @@ function showError(message) {
 // Global functions for button clicks
 window.trackAndCall = function() {
     trackEvent('schedule_call_clicked', { phone: phoneNumber });
-    alert('Thank you! Our admissions team will contact you within 24 hours.');
+    const message = currentLanguage === 'te' 
+        ? 'ధన్యవాదాలు! మా ప్రవేశాల బృందం 24 గంటల్లో మిమ్మల్ని సంప్రదిస్తుంది.'
+        : 'Thank you! Our admissions team will contact you within 24 hours.';
+    alert(message);
 };
 
 window.trackAnswerKey = function() {
@@ -345,4 +442,13 @@ window.downloadCertificate = function(name, band, percentile) {
 };
 
 // Initialize on load
-init();
+document.addEventListener('DOMContentLoaded', () => {
+    // Always show language modal on page load
+    languageModal.style.display = 'flex';
+    
+    // Log page view
+    trackEvent('page_view', {
+        page_title: 'Parent Portal',
+        phone_number: phoneNumber || 'not_provided'
+    });
+});
