@@ -24,8 +24,8 @@ export const SCHOOL_CONTACT = {
 // Translations
 export const translations = {
     en: {
-        title: "Talent Test Report",
-        subtitle: "View your child's performance and admission eligibility",
+        title: "View Talent Test Results",
+        subtitle: "An in-depth evaluation of your child’s skills, knowledge, and aptitude.",
         enterPhone: "Enter Phone Number",
         phonePlaceholder: "Enter 10-digit phone number",
         viewReport: "View Report",
@@ -51,11 +51,11 @@ export const translations = {
         invalidPhone: "Please enter a valid 10-digit phone number",
         noReports: "No reports found for this phone number.",
         loading: "Loading your report...",
-        chooseLanguage: "Choose Language / భాష ఎంచుకోండి"
+        chooseLanguage: "Choose Language / భాష ఎంచుకోండి / भाषा चुनें"
     },
     te: {
-        title: "టాలెంట్ టెస్ట్ రిపోర్ట్",
-        subtitle: "మీ పిల్లల పనితీరు మరియు ప్రవేశ అర్హతను చూడండి",
+        title: "టాలెంట్ టెస్ట్ ఫలితాలను చూడండి",
+        subtitle: "మీ పిల్లల నైపుణ్యాలు, జ్ఞానం మరియు ప్రతిభను లోతుగా అంచనా వేసిన సమగ్ర మూల్యాంకనం.",
         enterPhone: "ఫోన్ నంబర్ నమోదు చేయండి",
         phonePlaceholder: "10-అంకెల ఫోన్ నంబర్ నమోదు చేయండి",
         viewReport: "రిపోర్ట్ చూడండి",
@@ -81,6 +81,36 @@ export const translations = {
         invalidPhone: "దయచేసి చెల్లుబాటు అయ్యే 10-అంకెల ఫోన్ నంబర్‌ను నమోదు చేయండి",
         noReports: "ఈ ఫోన్ నంబర్‌కు రిపోర్ట్‌లు కనుగొనబడలేదు.",
         loading: "మీ రిపోర్ట్ లోడ్ అవుతోంది...",
-        chooseLanguage: "Choose Language / భాష ఎంచుకోండి"
+        chooseLanguage: "Choose Language / భాష ఎంచుకోండి / भाषा चुनें"
+    },
+    hi: {
+        title: "टैलेंट टेस्ट परिणाम देखें",
+        subtitle: "आपके बच्चे के कौशल, ज्ञान और योग्यता का गहन मूल्यांकन।",
+        enterPhone: "फोन नंबर दर्ज करें",
+        phonePlaceholder: "10-अंकों का फोन नंबर दर्ज करें",
+        viewReport: "रिपोर्ट देखें",
+        selectStudent: "छात्र / कक्षा चुनें:",
+        selectOption: "-- छात्र चुनें --",
+        performanceSummary: "प्रदर्शन सारांश",
+        percentile: "प्रतिशतक",
+        score: "स्कोर",
+        percentage: "प्रतिशत",
+        diagnosticInsight: "निदान अंतर्दृष्टि",
+        subjectPerformance: "विषयवार प्रदर्शन: राउंड 1 (ओपन बुक) बनाम राउंड 2 (क्लोज्ड बुक)",
+        openBook: "ओपन बुक",
+        closedBook: "क्लोज्ड बुक",
+        admissionEligibility: "प्रवेश योग्यता",
+        scholarshipBenefits: "छात्रवृत्ति लाभ",
+        feeBenefits: "शुल्क लाभ",
+        nextSteps: "अगले कदम - अपने बच्चे का प्रवेश सुरक्षित करें",
+        scheduleCounselling: "काउंसलिंग कॉल शेड्यूल करें",
+        downloadCertificate: "प्रमाणपत्र डाउनलोड करें",
+        viewAnswerKey: "उत्तर कुंजी देखें",
+        class: "कक्षा",
+        testDate: "परीक्षा तिथि",
+        invalidPhone: "कृपया एक मान्य 10-अंकों का फोन नंबर दर्ज करें",
+        noReports: "इस फोन नंबर के लिए कोई रिपोर्ट नहीं मिली।",
+        loading: "आपकी रिपोर्ट लोड हो रही है...",
+        chooseLanguage: "Choose Language / भाशा चुनें / భాష ఎంచుకోండి"
     }
 };

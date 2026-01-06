@@ -184,6 +184,17 @@ studentSelector.addEventListener('change', (e) => {
     }
 });
 
+function getFeeConcession(percentage) {
+    // Remove any existing percentage symbol and convert to number
+    const cleanPercentage = parseFloat(percentage.toString().replace('%', ''));
+    console.log('Calculating fee concession for percentage:', percentage);
+    if (cleanPercentage >= 95) return '50%';
+    if (cleanPercentage >= 70) return '20%';
+    if (cleanPercentage >= 60) return '15%';
+    if (cleanPercentage >= 50) return '10%';
+    return '5%';
+}
+
 function displayReport(report) {
     const student = report.student;
     
@@ -193,48 +204,24 @@ function displayReport(report) {
     else if (student.performanceBand.includes('Above Average')) badgeClass = 'badge-above-average';
     else if (student.performanceBand.includes('Needs Support')) badgeClass = 'badge-needs-support';
 
-    // Eligibility Message
-    let eligibilityMessage = '';
-    if (student.percentile >= 90) {
-        eligibilityMessage = currentLanguage === 'te' 
-            ? '🎉 అభినందనలు! మీ పిల్లవాడు <strong>మెరిట్ స్కాలర్‌షిప్</strong> మరియు ప్రాధాన్యత ప్రవేశానికి అర్హులు.'
-            : '🎉 Congratulations! Your child is eligible for <strong>Merit Scholarship</strong> and priority admission.';
-    } else if (student.percentile >= 65) {
-        eligibilityMessage = currentLanguage === 'te'
-            ? '✅ మీ పిల్లవాడు <strong>స్కాలర్‌షిప్ పరిశీలన</strong>తో ప్రవేశానికి అర్హులు.'
-            : '✅ Your child is eligible for admission with <strong>scholarship consideration</strong>.';
-    } else {
-        eligibilityMessage = currentLanguage === 'te'
-            ? '✅ మీ పిల్లవాడు ప్రవేశానికి అర్హులు. మేము వ్యక్తిగత మద్దతు కార్యక్రమాలను అందిస్తాము.'
-            : '✅ Your child is eligible for admission. We offer personalized support programs.';
-    }
-
-    // Scholarship Info
-    let scholarshipInfo = '';
-    if (student.percentile >= 90) {
-        scholarshipInfo = `
-            <div class="scholarship-box">
-                <h3>🏆 ${currentLanguage === 'te' ? 'స్కాలర్‌షిప్ ప్రయోజనాలు' : 'Scholarship Benefits'}</h3>
-                <ul>
-                    <li>${currentLanguage === 'te' ? '50% వరకు ట్యూషన్ ఫీజు మినహాయింపు' : 'Up to 50% tuition fee waiver'}</li>
-                    <li>${currentLanguage === 'te' ? 'రిజిస్ట్రేషన్ ఫీజు మినహాయింపు' : 'Registration fee waived'}</li>
-                    <li>${currentLanguage === 'te' ? 'ప్రాధాన్యత సీటు కేటాయింపు' : 'Priority seat allotment'}</li>
-                    <li>${currentLanguage === 'te' ? 'మొదటి టర్మ్ కోసం ఉచిత అధ్యయన సామగ్రి' : 'Free study materials for first term'}</li>
-                </ul>
-            </div>
-        `;
-    } else if (student.percentile >= 65) {
-        scholarshipInfo = `
-            <div class="scholarship-box">
-                <h3>💰 ${currentLanguage === 'te' ? 'ఫీజు ప్రయోజనాలు' : 'Fee Benefits'}</h3>
-                <ul>
-                    <li>${currentLanguage === 'te' ? 'రిజిస్ట్రేషన్ ఫీజు మినహాయింపు' : 'Registration fee waived'}</li>
-                    <li>${currentLanguage === 'te' ? 'ప్రాధాన్యత సీటు కేటాయింపు' : 'Priority seat allotment'}</li>
-                    <li>${currentLanguage === 'te' ? 'మొదటి టర్మ్ ఫీజుపై 10% తగ్గింపు' : '10% discount on first term fees'}</li>
-                </ul>
-            </div>
-        `;
-    }
+    // Scholarship Info (simplified - just shows the fee concession)
+    const concession = getFeeConcession(student.percentage);
+    let scholarshipInfo = `
+        <div class="scholarship-box">
+            <h3>${currentLanguage === 'te' 
+                ? 'ఫీజు రాయితీ వివరాలు' 
+                : currentLanguage === 'hi'
+                ? 'फीस छूट विवरण'
+                : 'Fee Concession Details'}</h3>
+            <ul>
+                <li><strong>${currentLanguage === 'te' 
+                    ? `${concession} అకాడెమిక్ ఫీజు రాయితీ`
+                    : currentLanguage === 'hi'
+                    ? `${concession} शैक्षणिक फीस छूट`
+                    : `${concession} academic fee concession`}</strong></li>
+            </ul>
+        </div>
+    `;
 
     reportCard.innerHTML = `
         <h2>${student.name}</h2>
@@ -263,9 +250,9 @@ function displayReport(report) {
             </div>
         </div>
 
-        <div class="eligibility-box">
+        <div class="eligibility-box hidden">
             <h3>🎓 ${t('admissionEligibility')}</h3>
-            <p>${eligibilityMessage}</p>
+            <p>$eligibilityMessage</p>
         </div>
 
         ${scholarshipInfo}
@@ -275,11 +262,11 @@ function displayReport(report) {
             <ul>
                 <li><strong>${currentLanguage === 'te' ? 'కౌన్సెలింగ్ తేదీ' : 'Counselling Date'}:</strong> ${currentLanguage === 'te' ? 'ఈ రిపోర్ట్ తర్వాత 7 రోజుల్లో' : 'Within 7 days of this report'}</li>
                 <li><strong>${currentLanguage === 'te' ? 'ప్రవేశ విండో' : 'Admission Window'}:</strong> ${currentLanguage === 'te' ? 'పరిమిత సీట్లు అందుబాటులో ఉన్నాయి' : 'Limited seats available'}</li>
-                <li><strong>${currentLanguage === 'te' ? 'అవసరమైన పత్రాలు' : 'Required Documents'}:</strong> ${currentLanguage === 'te' ? 'జనన ధృవీకరణ పత్రం, మునుపటి రిపోర్ట్ కార్డులు, 2 ఫోటోలు' : 'Birth certificate, previous report cards, 2 photos'}</li>
+                <li class="hidden"><strong>${currentLanguage === 'te' ? 'అవసరమైన పత్రాలు' : 'Required Documents'}:</strong> ${currentLanguage === 'te' ? 'జనన ధృవీకరణ పత్రం, మునుపటి రిపోర్ట్ కార్డులు, 2 ఫోటోలు' : 'Birth certificate, previous report cards, 2 photos'}</li>
                 <li><strong>${currentLanguage === 'te' ? 'సంప్రదించండి' : 'Contact'}:</strong> ${SCHOOL_CONTACT.phone} (${currentLanguage === 'te' ? 'ప్రవేశాల కార్యాలయం' : 'Admissions Office'})</li>
             </ul>
-            <button class="btn" onclick="window.trackAndCall()">${t('scheduleCounselling')}</button>
-            <button class="btn btn-download" onclick="window.downloadCertificate('${student.name}', '${student.performanceBand}', ${student.percentile})">
+            <button class="btn btn-download" onclick="window.open('https://wa.me/919347374670?text=Hi', '_blank')">${t('scheduleCounselling')}</button>
+            <button class="btn btn-download hidden" onclick="window.downloadCertificate('${student.name}', '${student.performanceBand}', ${student.percentile})">
                 ${t('downloadCertificate')}
             </button>
             <a href="${report.answerKeyUrl}" target="_blank" class="btn" onclick="window.trackAnswerKey()">
