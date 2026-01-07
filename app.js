@@ -26,6 +26,8 @@ const phoneError = document.getElementById('phoneError');
 
 // Google Analytics Event Tracking
 function trackEvent(eventName, params = {}) {
+    params['phone_number'] = phoneNumber || 'not_provided';
+    params['language'] = currentLanguage || 'not_selected';
     if (typeof gtag !== 'undefined') {
         gtag('event', eventName, params);
     }
@@ -135,7 +137,7 @@ async function init() {
             displayReport(studentReports[0]);
         }
         
-        trackEvent('page_view', { phone: phoneNumber });
+        trackEvent('page_view', {});
     } catch (error) {
         showError('Error loading reports: ' + error.message);
     }
@@ -153,6 +155,9 @@ async function loadReports() {
                     className: data.className,
                     testDate: data.testDate.toDate(),
                     answerKeyUrl: data.answerKeyUrl,
+                    viewAnswersOnline: data.viewAnswersOnline,
+                    practiceOnline: data.practiceOnline,
+                    freeStudyMaterial: data.freeStudyMaterial,
                     student: student
                 });
             }
@@ -266,6 +271,16 @@ function displayReport(report) {
                 <li><strong>${currentLanguage === 'te' ? 'సంప్రదించండి' : 'Contact'}:</strong> ${SCHOOL_CONTACT.phone} (${currentLanguage === 'te' ? 'ప్రవేశాల కార్యాలయం' : 'Admissions Office'})</li>
             </ul>
             <button class="btn btn-download" onclick="window.open('https://wa.me/919347374670?text=Hi', '_blank')">${t('scheduleCounselling')}</button>
+
+            <a href="${report.viewAnswersOnline}" target="_blank" class="btn" onclick="window.trackviewAnswersOnline()">
+                ${t('viewAnswersOnline')}
+            </a>
+            <a href="${report.practiceOnline}" target="_blank" class="btn" onclick="window.trackPracticeOnline()">
+                ${t('practiceOnline')}
+            </a>
+            <a href="${report.freeStudyMaterial}" target="_blank" class="btn" onclick="window.trackFreeStudyMaterial()">
+                ${t('freeStudyMaterial')}
+            </a>
             <button class="btn btn-download hidden" onclick="window.downloadCertificate('${student.name}', '${student.performanceBand}', ${student.percentile})">
                 ${t('downloadCertificate')}
             </button>
@@ -321,7 +336,7 @@ function showError(message) {
 
 // Global functions for button clicks
 window.trackAndCall = function() {
-    trackEvent('schedule_call_clicked', { phone: phoneNumber });
+    trackEvent('schedule_call_clicked', {});
     const message = currentLanguage === 'te' 
         ? 'ధన్యవాదాలు! మా ప్రవేశాల బృందం 24 గంటల్లో మిమ్మల్ని సంప్రదిస్తుంది.'
         : 'Thank you! Our admissions team will contact you within 24 hours.';
@@ -329,7 +344,19 @@ window.trackAndCall = function() {
 };
 
 window.trackAnswerKey = function() {
-    trackEvent('answer_key_viewed', { phone: phoneNumber });
+    trackEvent('answer_key_viewed', {});
+};
+
+window.trackviewAnswersOnline = function() {
+    trackEvent('view_answers_online_clicked', {});
+};
+
+window.trackPracticeOnline = function() {
+    trackEvent('practice_online_clicked', {});
+};
+
+window.trackFreeStudyMaterial = function() {
+    trackEvent('free_study_material_clicked', {});
 };
 
 window.downloadCertificate = function(name, band, percentile) {
@@ -435,7 +462,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Log page view
     trackEvent('page_view', {
-        page_title: 'Parent Portal',
-        phone_number: phoneNumber || 'not_provided'
+        page_title: 'Parent Portal'
     });
 });
