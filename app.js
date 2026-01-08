@@ -213,18 +213,36 @@ function displayReport(report) {
     const concession = getFeeConcession(student.percentage);
     let scholarshipInfo = `
         <div class="scholarship-box">
-            <h3>${currentLanguage === 'te' 
-                ? 'ఫీజు రాయితీ వివరాలు' 
-                : currentLanguage === 'hi'
-                ? 'फीस छूट विवरण'
-                : 'Fee Concession Details'}</h3>
-            <ul>
-                <li><strong>${currentLanguage === 'te' 
-                    ? `${concession} అకాడెమిక్ ఫీజు రాయితీ`
-                    : currentLanguage === 'hi'
-                    ? `${concession} शैक्षणिक फीस छूट`
-                    : `${concession} academic fee concession`}</strong></li>
-            </ul>
+            <div class="offer-content">
+                <div class="offer-text">
+                    <h3>${currentLanguage === 'te' 
+                        ? 'ఫీజు రాయితీ వివరాలు' 
+                        : currentLanguage === 'hi'
+                        ? 'फीस छूट विवरण'
+                        : 'Fee Concession Details'}</h3>
+                    <ul>
+                        <li><strong>${currentLanguage === 'te' 
+                            ? `${concession} అకాడెమిక్ ఫీజు రాయితీ`
+                            : currentLanguage === 'hi'
+                            ? `${concession} शैक्षणिक फीस छूट`
+                            : `${concession} academic fee concession`}</strong></li>
+                        <li><strong>${currentLanguage === 'te' 
+                            ? 'వసంత పంచమి (సరస్వతి పూజ) సందర్భంగా ప్రత్యేక ఆఫర్: <span class="emphasize">23 జనవరి 2026 లేదా దానికి ముందు</span> ప్రవేశం పొందే విద్యార్థులకు ఉచిత ప్రవేశం (శూన్య ప్రవేశ ఫీజు)'
+                            : currentLanguage === 'hi'
+                            ? 'वसंत पंचमी (सरस्वती पूजा) के अवसर पर विशेष ऑफर: <span class="emphasize">23 जनवरी 2026 या उससे पहले</span> प्रवेश लेने वाले छात्रों के लिए निःशुल्क प्रवेश (शून्य प्रवेश शुल्क)'
+                            : 'Special offer on the occasion of Vasantha Panchami (Saraswati Puja): Free admissions (zero admission fee) for students enrolling <span class="emphasize">on or before 23rd</span> January 2026'}</strong></li>
+                    </ul>
+                </div>
+                <div class="offer-image">
+                    <img src="/images/vasantPanchami.png" 
+                        alt="${currentLanguage === 'te' 
+                            ? 'వసంత పంచమి ఆఫర్'
+                            : currentLanguage === 'hi'
+                            ? 'वसंत पंचमी ऑफर'
+                            : 'Vasantha Panchami Offer'}"
+                        style="width: 100%; height: auto;">
+                </div>
+            </div>
         </div>
     `;
 
